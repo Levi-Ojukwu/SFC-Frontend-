@@ -1,34 +1,117 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+"use client"
+
+import { Routes, Route, Navigate } from "react-router-dom"
+import { useAuth } from "./contexts/AuthContext"
+import { useTheme } from "./contexts/ThemeContext"
+import { useEffect } from "react"
+import './output.css'
+
+// Pages
+import WelcomePage from "./pages/WelcomePage"
+// import LandingPage from "./pages/LandingPage"
+// import LoginPage from "./pages/auth/LoginPage"
+// import RegisterPage from "./pages/auth/RegisterPage"
+// import UserDashboard from "./pages/dashboard/UserDashboard"
+// import AdminDashboard from "./pages/dashboard/AdminDashboard"
+// import MatchesPage from "./pages/MatchesPage"
+// import FixturesPage from "./pages/FixturesPage"
+// import StatisticsPage from "./pages/StatisticsPage"
+// import TablePage from "./pages/TablePage"
+// import PlayersPage from "./pages/PlayersPage"
+// import PaymentPage from "./pages/PaymentPage"
+import ProtectedRoute from "./components/ProtectedRoute"
+import AdminRoute from "./components/AdminRoute"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { user, loading } = useAuth()
+  const { theme } = useTheme()
+
+  useEffect(() => {
+    document.documentElement.className = theme
+  }, [theme])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-dark-900 dark:to-dark-800">
+        <div className="text-center">
+          <div className="loading-spinner mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading Special FC...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900 ai-background">
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/welcome" element={<WelcomePage />} />
+        {/* <Route path="/landing" element={<LandingPage />} />
+        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} /> */}
+
+        {/* Protected Routes */}
+        {/* <Route
+          path="/dashboard"
+          element={<ProtectedRoute>{user?.role === "admin" ? <AdminDashboard /> : <UserDashboard />}</ProtectedRoute>}
+        /> */}
+
+        {/* <Route
+          path="/matches"
+          element={
+            <ProtectedRoute>
+              <MatchesPage />
+            </ProtectedRoute>
+          }
+        /> */}
+        {/* <Route
+          path="/fixtures"
+          element={
+            <ProtectedRoute>
+              <FixturesPage />
+            </ProtectedRoute>
+          }
+        /> */}
+        {/* <Route
+          path="/statistics"
+          element={
+            <ProtectedRoute>
+              <StatisticsPage />
+            </ProtectedRoute>
+          }
+        /> */}
+        {/* <Route
+          path="/table"
+          element={
+            <ProtectedRoute>
+              <TablePage />
+            </ProtectedRoute>
+          }
+        /> */}
+        {/* <Route
+          path="/players"
+          element={
+            <ProtectedRoute>
+              <PlayersPage />
+            </ProtectedRoute>
+          }
+        /> */}
+        {/* <Route
+          path="/payment"
+          element={
+            <ProtectedRoute>
+              <PaymentPage />
+            </ProtectedRoute>
+          }
+        /> */}
+
+        {/* Admin Routes */}
+        <Route path="/admin/*" element={<AdminRoute />} />
+
+        {/* Default Route */}
+        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/welcome" />} />
+      </Routes>
+    </div>
   )
 }
 

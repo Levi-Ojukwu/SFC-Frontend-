@@ -32,7 +32,7 @@ const WelcomePage: React.FC = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent"
           >
-            Welcome to Special Football FC
+            Welcome to Special FC
           </motion.h1>
 
           <motion.p
