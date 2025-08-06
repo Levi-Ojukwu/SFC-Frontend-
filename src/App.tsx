@@ -8,9 +8,9 @@ import './output.css'
 
 // Pages
 import WelcomePage from "./pages/WelcomePage"
-// import LandingPage from "./pages/LandingPage"
-// import LoginPage from "./pages/auth/LoginPage"
-// import RegisterPage from "./pages/auth/RegisterPage"
+import LandingPage from "./pages/LandingPage"
+import LoginPage from "./pages/auth/LoginPage"
+import RegisterPage from "./pages/auth/RegisterPage"
 // import UserDashboard from "./pages/dashboard/UserDashboard"
 // import AdminDashboard from "./pages/dashboard/AdminDashboard"
 // import MatchesPage from "./pages/MatchesPage"
@@ -46,9 +46,9 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/welcome" element={<WelcomePage />} />
-        {/* <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} /> */}
+        <Route path="/landing" element={<LandingPage />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
 
         {/* Protected Routes */}
         {/* <Route
