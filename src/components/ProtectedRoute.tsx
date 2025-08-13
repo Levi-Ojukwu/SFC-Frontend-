@@ -1,31 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
-import type { ReactNode } from "react"
-import { Navigate } from "react-router-dom"
-import { useAuth } from "../contexts/AuthContext"
+import type React from "react";
+import type { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 interface ProtectedRouteProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, loading } = useAuth()
-  console.log("ProtectedRoute: User:", user, "Loading:", loading); // NEW LOG
+  const { user, loading } = useAuth();
 
+  // Only show spinner while AuthProvider is verifying/restoring
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="loading-spinner"></div>
+        <div className="loading-spinner" />
       </div>
-    )
+    );
   }
 
-  // if (!user) {
-  //   return <Navigate to="/login" />
-  // }
+  // After loading completes, if there's no user -> go to login
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  return <>{children}</>
-}
+  // Auth ok -> render children
+  return <>{children}</>;
+};
 
-export default ProtectedRoute
+export default ProtectedRoute;

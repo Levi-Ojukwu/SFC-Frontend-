@@ -1,148 +1,172 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-import { useNavigate } from "react-router-dom" // <--- IMPORTANT: This import is crucial
-import { authAPI } from "../lib/api"
-import toast from "react-hot-toast"
+import type React from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useNavigate } from "react-router-dom";
+import { authAPI } from "../lib/api";
+import toast from "react-hot-toast";
 
 interface User {
-  id: number
-  first_name: string
-  last_name: string
-  username: string
-  email: string
-  role: "player" | "admin"
-  is_verified: boolean
-  team_id?: number
+  id: number;
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  role: "player" | "admin";
+  is_verified: boolean;
+  team_id?: number;
   team?: {
-    id: number
-    name: string
-  }
-}
-
-interface AuthContextType {
-  user: User | null
-  token: string | null
-  loading: boolean
-  login: (username: string, password: string) => Promise<void>
-  register: (data: RegisterData) => Promise<void>
-  logout: () => void
-  updateUser: (userData: Partial<User>) => void
+    id: number;
+    name: string;
+  };
 }
 
 interface RegisterData {
-  first_name: string
-  last_name: string
-  username: string
-  email: string
-  password: string
-  password_confirmation: string
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+interface AuthContextType {
+  user: User | null;
+  token: string | null;
+  loading: boolean;
+  login: (username: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => void;
+  updateUser: (userData: Partial<User>) => void;
+  restoreUserFromStorage: () => void; // exposed but only used internally
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
-}
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+  return ctx;
+};
 
 interface AuthProviderProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
-  const [loading, setLoading] = useState(true) // Keep loading true initially
-  const navigate = useNavigate(); // <--- IMPORTANT: Initialize useNavigate here
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(
+    typeof window !== "undefined" ? localStorage.getItem("token") : null
+  );
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // Safely load from localStorage without ending loading
+  const restoreUserFromStorage = () => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken) setToken(storedToken);
+
+    if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse stored user:", e);
+        localStorage.removeItem("user");
+      }
+    }
+  };
+
+  // Verify token with backend and **end loading**
+  const verifyToken = async () => {
+    const t = localStorage.getItem("token");
+    if (!t) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const resp = await authAPI.me();
+      setUser(resp.data.user);
+      localStorage.setItem("user", JSON.stringify(resp.data.user));
+    } catch (err: any) {
+      console.error(
+        "AuthContext: Token verification failed:",
+        err?.response?.data || err?.message
+      );
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initAuth = async () => {
-      const storedToken = localStorage.getItem("token")
-      if (storedToken) {
-        try {
-          console.log("AuthContext: Token found in localStorage, attempting to verify...")
-          const response = await authAPI.me()
-          setUser(response.data.user)
-          setToken(storedToken)
-          console.log("AuthContext: User data fetched successfully, user is logged in.")
-        } catch (error: any) {
-          // Log the specific error response from the backend
-          console.error("AuthContext: Token verification failed:", error.response?.data || error.message)
-          localStorage.removeItem("token")
-          setToken(null)
-          setUser(null)
-          // Do not show a toast here, as it might be a silent re-authentication attempt on every refresh
-        }
-      } else {
-        console.log("AuthContext: No token found in localStorage.")
-      }
-      setLoading(false) // Always set loading to false after attempt
-    }
-
-    initAuth()
-  }, []) // Empty dependency array ensures this runs only once on mount
+    restoreUserFromStorage(); // quick optimistic state
+    verifyToken();            // authoritative check -> ends loading
+  }, []);
 
   const login = async (username: string, password: string) => {
-    setLoading(true); // Set loading to true at the start of login
+    setLoading(true);
     try {
-      console.log("Login attempt started for:", username); // New log
-      const response = await authAPI.login({ username, password })
-      console.log("Login API response:", response.data.status); // Log the full response data
-      const { access_token, user: userData } = response.data
+      const resp = await authAPI.login({ username, password });
+      const { access_token, user: userData } = resp.data.data;
 
-      localStorage.setItem("token", access_token)
-      setToken(access_token)
-      setUser(userData)
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setToken(access_token);
+      setUser(userData);
 
-      // Safely access first_name, providing a fallback
-      if(response.data.status === "success") {
-        navigate("/dashboard"); // <--- IMPORTANT: Navigate to dashboard after successful login and state update
-        toast.success(`Welcome back, ${userData?.first_name || 'User'}!`)
-      console.log("AuthContext: User state updated, attempting navigation to /dashboard..."); // New log
-      console.log("AuthContext: Navigation call executed."); // New log
+      if (resp.data.status === "success") {
+        toast.success(`Welcome back, ${userData?.first_name || "User"}!`);
+        navigate("/dashboard");
       }
-    } catch (error: any) {
-      console.error("Login error:", error.response?.data || error.message)
-      const message = error.response?.data?.message || "Login failed"
-      toast.error(message)
-      throw error
+    } catch (err: any) {
+      console.error("Login error:", err?.response?.data || err?.message);
+      toast.error(err?.response?.data?.message || "Login failed");
+      throw err;
     } finally {
-      setLoading(false); // Set loading to false regardless of success or failure
-      console.log("Login process finished."); // New log
+      setLoading(false);
     }
-  }
+  };
 
   const register = async (data: RegisterData) => {
     try {
-      const response = await authAPI.register(data)
-      toast.success(response.data.message)
-    } catch (error: any) {
-      console.error("Registration error:", error.response?.data || error.message)
-      const message = error.response?.data?.message || "Registration failed"
-      toast.error(message)
-      throw error
+      const resp = await authAPI.register(data);
+      toast.success(resp.data.message);
+    } catch (err: any) {
+      console.error("Registration error:", err?.response?.data || err?.message);
+      toast.error(err?.response?.data?.message || "Registration failed");
+      throw err;
     }
-  }
+  };
 
   const logout = () => {
-    localStorage.removeItem("token")
-    setToken(null)
-    setUser(null)
-    toast.success("Logged out successfully")
-    navigate('/login'); // <--- IMPORTANT: Navigate to login page after logout
-    console.log("AuthContext: Logout navigation call executed."); // New log
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken(null);
+    setUser(null);
+    toast.success("Logged out successfully");
+    navigate("/login");
+  };
 
   const updateUser = (userData: Partial<User>) => {
-    setUser((prev) => (prev ? { ...prev, ...userData } : null))
-  }
+    setUser(prev => {
+      const updated = prev ? { ...prev, ...userData } : null;
+      if (updated) localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     token,
     loading,
@@ -150,7 +174,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateUser,
-  }
+    restoreUserFromStorage,
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
               <div className="hidden md:flex items-center space-x-4">
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {user.first_name} {user.last_name}
+                    {user.username} ✅
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user.role}</p>
                 </div>
