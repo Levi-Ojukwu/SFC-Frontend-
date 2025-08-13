@@ -15,9 +15,9 @@ const AdminRoute: React.FC = () => {
     )
   }
 
-  if (!user || user.role !== "admin") {
-    return <Navigate to="/dashboard" />
-  }
+  // if (!user || user.role !== "admin") {
+  //   return <Navigate to="/dashboard" />
+  // }
 
   // Return admin dashboard or admin routes
   return <Navigate to="/dashboard" />

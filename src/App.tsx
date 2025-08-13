@@ -4,15 +4,14 @@ import { Routes, Route, Navigate } from "react-router-dom"
 import { useAuth } from "./contexts/AuthContext"
 import { useTheme } from "./contexts/ThemeContext"
 import { useEffect } from "react"
-import './output.css'
 
 // Pages
 import WelcomePage from "./pages/WelcomePage"
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/auth/LoginPage"
 import RegisterPage from "./pages/auth/RegisterPage"
-// import UserDashboard from "./pages/dashboard/UserDashboard"
-// import AdminDashboard from "./pages/dashboard/AdminDashboard"
+import UserDashboard from "./pages/dashboard/UserDashboard"
+import AdminDashboard from "./pages/dashboard/AdminDashboard"
 // import MatchesPage from "./pages/MatchesPage"
 // import FixturesPage from "./pages/FixturesPage"
 // import StatisticsPage from "./pages/StatisticsPage"
@@ -28,7 +27,9 @@ function App() {
 
   useEffect(() => {
     document.documentElement.className = theme
-  }, [theme])
+    console.log("App.tsx: Current user state:", user); // NEW LOG
+    console.log("App.tsx: Loading state:", loading); // NEW LOG
+  }, [theme, user, loading]) // Depend on user and loading
 
   if (loading) {
     return (
@@ -46,15 +47,15 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/welcome" element={<WelcomePage />} />
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <RegisterPage />} />
 
         {/* Protected Routes */}
-        {/* <Route
+        <Route
           path="/dashboard"
           element={<ProtectedRoute>{user?.role === "admin" ? <AdminDashboard /> : <UserDashboard />}</ProtectedRoute>}
-        /> */}
+        />
 
         {/* <Route
           path="/matches"
