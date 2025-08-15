@@ -78,7 +78,7 @@ const LandingPage: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
               <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary-600 via-secondary-600 to-primary-600 bg-clip-text text-transparent">
-                Welcome to Special Football FC
+                Welcome to Special FC
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
                 Join the most passionate football community where dreams become reality. Experience the beautiful game
@@ -145,7 +145,7 @@ const LandingPage: React.FC = () => {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-gray-100">
-              Why Join Special Football FC?
+              Why Join Special FC?
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Discover what makes our football club the perfect place to pursue your passion for the beautiful game.
@@ -182,7 +182,7 @@ const LandingPage: React.FC = () => {
             <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
               <h2 className="text-3xl md:text-5xl font-bold mb-6">About Our Teams</h2>
               <p className="text-xl mb-8 opacity-90 leading-relaxed">
-                Special Football FC consists of four competitive teams, each with its own unique identity and playing
+                Special FC consists of four competitive teams, each with its own unique identity and playing
                 style. Our teams compete in various leagues and tournaments, providing opportunities for players of all
                 skill levels to showcase their talents and grow as footballers.
               </p>
@@ -275,10 +275,10 @@ const LandingPage: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <img src="/logo.png" alt="Special FC" className="h-10 w-10" />
-              <span className="text-xl font-bold">Special Football FC</span>
+              <span className="text-xl font-bold">Special FC</span>
             </div>
             <div className="text-gray-400">
-              <p>&copy; 2024 Special Football FC. All rights reserved.</p>
+              <p>&copy; 2025 Special FC. All rights reserved.</p>
             </div>
           </div>
         </div>

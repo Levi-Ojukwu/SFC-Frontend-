@@ -12,12 +12,12 @@ import LoginPage from "./pages/auth/LoginPage"
 import RegisterPage from "./pages/auth/RegisterPage"
 import UserDashboard from "./pages/dashboard/UserDashboard"
 import AdminDashboard from "./pages/dashboard/AdminDashboard"
-// import MatchesPage from "./pages/MatchesPage"
-// import FixturesPage from "./pages/FixturesPage"
+import MatchesPage from "./pages/MatchesPage"
+import FixturesPage from "./pages/FixturesPage"
 // import StatisticsPage from "./pages/StatisticsPage"
 // import TablePage from "./pages/TablePage"
 // import PlayersPage from "./pages/PlayersPage"
-// import PaymentPage from "./pages/PaymentPage"
+import PaymentPage from "./pages/PaymentPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
 
@@ -57,22 +57,22 @@ function App() {
           element={<ProtectedRoute>{user?.role === "admin" ? <AdminDashboard /> : <UserDashboard />}</ProtectedRoute>}
         />
 
-        {/* <Route
+        <Route
           path="/matches"
           element={
             <ProtectedRoute>
               <MatchesPage />
             </ProtectedRoute>
           }
-        /> */}
-        {/* <Route
+        />
+        <Route
           path="/fixtures"
           element={
             <ProtectedRoute>
               <FixturesPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         {/* <Route
           path="/statistics"
           element={
@@ -97,14 +97,14 @@ function App() {
             </ProtectedRoute>
           }
         /> */}
-        {/* <Route
+        <Route
           path="/payment"
           element={
             <ProtectedRoute>
               <PaymentPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
 
         {/* Admin Routes */}
         <Route path="/admin/*" element={<AdminRoute />} />
