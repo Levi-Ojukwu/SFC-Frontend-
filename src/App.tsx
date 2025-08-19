@@ -14,8 +14,8 @@ import UserDashboard from "./pages/dashboard/UserDashboard"
 import AdminDashboard from "./pages/dashboard/AdminDashboard"
 import MatchesPage from "./pages/MatchesPage"
 import FixturesPage from "./pages/FixturesPage"
-// import StatisticsPage from "./pages/StatisticsPage"
-// import TablePage from "./pages/TablePage"
+import StatisticsPage from "./pages/StatisticsPage"
+import TablePage from "./pages/TablePage"
 import PlayersPage from "./pages/PlayersPage"
 import PaymentPage from "./pages/PaymentPage"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -73,22 +73,22 @@ function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/statistics"
           element={
             <ProtectedRoute>
               <StatisticsPage />
             </ProtectedRoute>
           }
-        /> */}
-        {/* <Route
+        />
+        <Route
           path="/table"
           element={
             <ProtectedRoute>
               <TablePage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="/players"
           element={
