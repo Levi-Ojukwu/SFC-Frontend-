@@ -16,7 +16,7 @@ import MatchesPage from "./pages/MatchesPage"
 import FixturesPage from "./pages/FixturesPage"
 // import StatisticsPage from "./pages/StatisticsPage"
 // import TablePage from "./pages/TablePage"
-// import PlayersPage from "./pages/PlayersPage"
+import PlayersPage from "./pages/PlayersPage"
 import PaymentPage from "./pages/PaymentPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
@@ -89,14 +89,14 @@ function App() {
             </ProtectedRoute>
           }
         /> */}
-        {/* <Route
+        <Route
           path="/players"
           element={
             <ProtectedRoute>
               <PlayersPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route
           path="/payment"
           element={
