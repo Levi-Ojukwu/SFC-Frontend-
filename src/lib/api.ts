@@ -47,6 +47,7 @@ export const authAPI = {
 // Dashboard API
 export const dashboardAPI = {
   getDashboard: () => api.get("/dashboard"),
+  getAdminDashboard: () => api.get("/admin/dashboard"),
   getStatistics: () => api.get("/dashboard/statistics"),
   getActivities: () => api.get("/dashboard/activities"),
 }
@@ -58,6 +59,7 @@ export const teamsAPI = {
   createTeam: (data: any) => api.post("/admin/teams/create", data),
   updateTeam: (id: number, data: any) => api.put(`/admin/teams/${id}`, data),
   deleteTeam: (id: number) => api.delete(`/admin/teams/${id}`),
+  getTeamPlayers: (id: number) => api.get(`/admin/teams/${id}/players`),
 }
 
 // Matches API
@@ -68,12 +70,16 @@ export const matchesAPI = {
   getMatch: (id: number) => api.get(`/matches/${id}`),
   createMatch: (data: any) => api.post("/admin/matches", data),
   updateMatch: (id: number, data: any) => api.put(`/admin/matches/${id}`, data),
+  updateMatchScore: (id: number, data: any) => api.put(`/admin/matches/${id}/score`, data),
   deleteMatch: (id: number) => api.delete(`/admin/matches/${id}`),
+  getLiveMatches: () => api.get("/matches/live"),
 }
 
 // Statistics API
 export const statisticsAPI = {
   getStatistics: () => api.get("/statistics"),
+  getPlayerStatistics: () => api.get("/admin/statistics/players"),
+  updatePlayerStatistic: (playerId: number, data: any) => api.put(`/admin/statistics/players/${playerId}`, data),
   createStatistic: (data: any) => api.post("/admin/statistics", data),
   updateStatistic: (id: number, data: any) => api.put(`/admin/statistics/${id}`, data),
   deleteStatistic: (id: number) => api.delete(`/admin/statistics/${id}`),
@@ -92,19 +98,25 @@ export const usersAPI = {
 // Admin API
 export const adminAPI = {
   getUsers: () => api.get("/admin/users"),
+  getUsersByTeam: () => api.get("/admin/users/by-team"),
   verifyUser: (id: number) => api.put(`/admin/users/${id}/verify`),
   unverifyUser: (id: number) => api.put(`/admin/users/${id}/unverify`),
-  updateUserTeam: (id: number, teamId: number) => api.put(`/admin/users/${id}/team`, { team_id: teamId }),
+  updateUserTeam: (id: number, teamId: number | null) => api.put(`/admin/users/${id}/team`, { team_id: teamId }),
+  removeUserFromTeam: (id: number) => api.put(`/admin/users/${id}/remove-team`),
+  deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
   getPayments: () => api.get("/admin/payments"),
   verifyPayment: (id: number) => api.put(`/admin/payments/${id}/verify`),
   rejectPayment: (id: number) => api.post(`/admin/payments/${id}/reject`),
+  getDashboardStats: () => api.get("/admin/dashboard/stats"),
 }
 
 // Notifications API
 export const notificationsAPI = {
   getNotifications: () => api.get("/notifications"),
+  getUnreadCount: () => api.get("/notifications/unread-count"),
   markAsRead: (id: number) => api.put(`/notifications/${id}/read`),
   markAllAsRead: () => api.put("/notifications/read-all"),
+  deleteNotification: (id: number) => api.delete(`/notifications/${id}`),
 }
 
 export default api

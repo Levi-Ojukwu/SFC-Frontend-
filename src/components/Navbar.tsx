@@ -7,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
 import { Menu, X, Sun, Moon, Home, Calendar, BarChart3, Users, Trophy, LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import NotificationDropdown from "./NotificationDropdown"
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth()
@@ -20,14 +21,30 @@ const Navbar: React.FC = () => {
     navigate("/welcome")
   }
 
-  const navItems = [
-    { name: "Dashboard", path: "/dashboard", icon: Home },
-    { name: "Matches", path: "/matches", icon: Calendar },
-    { name: "Fixtures", path: "/fixtures", icon: Calendar },
-    { name: "Statistics", path: "/statistics", icon: BarChart3 },
-    { name: "Table", path: "/table", icon: Trophy },
-    { name: "Players", path: "/players", icon: Users },
-  ]
+  // Different nav items for admin and regular users
+  const getNavItems = () => {
+    if (user?.role === "admin") {
+      return [
+        { name: "Dashboard", path: "/dashboard", icon: Home },
+        { name: "Players", path: "/admin/players", icon: Users },
+        { name: "Matches", path: "/admin/matches", icon: Calendar },
+        { name: "Statistics", path: "/admin/statistics", icon: BarChart3 },
+        { name: "Table", path: "/table", icon: Trophy },
+        { name: "Fixtures", path: "/fixtures", icon: Calendar },
+      ]
+    } else {
+      return [
+        { name: "Dashboard", path: "/dashboard", icon: Home },
+        { name: "Matches", path: "/matches", icon: Calendar },
+        { name: "Fixtures", path: "/fixtures", icon: Calendar },
+        { name: "Statistics", path: "/statistics", icon: BarChart3 },
+        { name: "Table", path: "/table", icon: Trophy },
+        { name: "Players", path: "/players", icon: Users },
+      ]
+    }
+  }
+
+  const navItems = getNavItems()
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-dark-900/90 backdrop-blur-md border-b border-gray-200 dark:border-dark-700">
