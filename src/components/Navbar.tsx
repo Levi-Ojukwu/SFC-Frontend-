@@ -53,9 +53,14 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center space-x-2">
             <img src="/logo.png" alt="Special FC" className="h-10 w-10" />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
-              Special FC
-            </span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                Special FC
+              </span>
+              {user?.role === "admin" && (
+                <span className="text-xs text-gray-500 dark:text-gray-400 -mt-1">Admin Panel</span>
+              )}
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -82,6 +87,9 @@ const Navbar: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Notifications */}
+            {user && <NotificationDropdown />}
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -94,10 +102,10 @@ const Navbar: React.FC = () => {
             {user && (
               <div className="hidden md:flex items-center space-x-4">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {user.username} ✅
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user.role}</p>
+                  {/* <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {user.username} 
+                  </p> */}
+                  <p className="text-sm text-gray-500 font-semibold dark:text-gray-400 capitalize">{user.role} {user.is_verified ? "• Verified" : "• Pending"} ✅</p>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -150,13 +158,25 @@ const Navbar: React.FC = () => {
               })}
 
               {user && (
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-3 px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
-                >
-                  <LogOut size={20} />
-                  <span className="font-medium">Logout</span>
-                </button>
+                <>
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-2 mt-2">
+                    <div className="px-3 py-2">
+                      {/* <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        {user.first_name} {user.last_name}
+                      </p> */}
+                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400 capitalize">
+                        {user.role} {user.is_verified ? "• Verified" : "• Pending"} ✅
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center space-x-3 px-3 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
+                  >
+                    <LogOut size={20} />
+                    <span className="font-medium">Logout</span>
+                  </button>
+                </>
               )}
             </div>
           </motion.div>

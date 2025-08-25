@@ -8,7 +8,7 @@ import { notificationsAPI } from "../lib/api"
 import toast from "react-hot-toast"
 
 interface Notification {
-  id: number
+  id: number 
   title: string
   message: string
   type: "info" | "success" | "warning" | "error"
@@ -144,11 +144,11 @@ const NotificationDropdown: React.FC = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: -1.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-96 bg-white dark:bg-dark-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden"
+            className="absolute right-0 mt-1 w-[265px] md:w-96 bg-white dark:bg-dark-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 max-h-96 overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">

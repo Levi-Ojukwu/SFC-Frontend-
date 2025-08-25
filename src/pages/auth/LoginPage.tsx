@@ -189,7 +189,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react" // Removed useEffect import
+import { useState, useEffect } from "react" // Removed useEffect import
 import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "../../contexts/AuthContext"

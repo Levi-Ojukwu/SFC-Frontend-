@@ -106,7 +106,7 @@ export const adminAPI = {
   deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
   getPayments: () => api.get("/admin/payments"),
   verifyPayment: (id: number) => api.put(`/admin/payments/${id}/verify`),
-  rejectPayment: (id: number) => api.post(`/admin/payments/${id}/reject`),
+  rejectPayment: (id: number, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),
   getDashboardStats: () => api.get("/admin/dashboard/stats"),
 }
 

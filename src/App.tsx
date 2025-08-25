@@ -21,15 +21,21 @@ import PaymentPage from "./pages/PaymentPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
 
+// Admin Pages
+import AdminPlayersPage from "./pages/admin/AdminPlayersPage"
+import AdminMatchesPage from "./pages/admin/AdminMatchesPage"
+import AdminStatisticsPage from "./pages/admin/AdminStatisticsPage"
+
 function App() {
   const { user, loading } = useAuth()
   const { theme } = useTheme()
 
   useEffect(() => {
     document.documentElement.className = theme
-    console.log("App.tsx: Current user state:", user); // NEW LOG
-    console.log("App.tsx: Loading state:", loading); // NEW LOG
+    console.log("App.tsx (useEffect): Current user state:", user, "Loading state:", loading)
   }, [theme, user, loading]) // Depend on user and loading
+
+  console.log("App.tsx (render): User:", user, "Loading:", loading)
 
   if (loading) {
     return (
@@ -102,6 +108,32 @@ function App() {
           element={
             <ProtectedRoute>
               <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin-Only Routes */}
+        <Route
+          path="/admin/players"
+          element={
+            <ProtectedRoute>
+              {user?.role === "admin" ? <AdminPlayersPage /> : <Navigate to="/dashboard" />}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matches"
+          element={
+            <ProtectedRoute>
+              {user?.role === "admin" ? <AdminMatchesPage /> : <Navigate to="/dashboard" />}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/statistics"
+          element={
+            <ProtectedRoute>
+              {user?.role === "admin" ? <AdminStatisticsPage /> : <Navigate to="/dashboard" />}
             </ProtectedRoute>
           }
         />

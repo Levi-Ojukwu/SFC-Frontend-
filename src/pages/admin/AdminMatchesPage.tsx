@@ -10,8 +10,8 @@ import toast from "react-hot-toast"
 
 interface Match {
   id: number
-  homeTeam: { id: number; name: string }
-  awayTeam: { id: number; name: string }
+  homeTeam?: { id: number; name: string }
+  awayTeam?: { id: number; name: string }
   home_team_score: number
   away_team_score: number
   match_date: string
@@ -310,7 +310,7 @@ const AdminMatchesPage: React.FC = () => {
                         <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-2">
                           <Trophy className="w-8 h-8 text-white" />
                         </div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.homeTeam.name}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.homeTeam?.name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Home</p>
                       </div>
 
@@ -339,7 +339,7 @@ const AdminMatchesPage: React.FC = () => {
                         <div className="w-16 h-16 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-full flex items-center justify-center mx-auto mb-2">
                           <Trophy className="w-8 h-8 text-white" />
                         </div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.awayTeam.name}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.awayTeam?.name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Away</p>
                       </div>
                     </div>
@@ -484,14 +484,14 @@ const AdminMatchesPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
           <div className="bg-white dark:bg-dark-800 rounded-lg p-6 w-full max-w-2xl mx-4 my-8">
             <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Update Match Score: {selectedMatch.homeTeam.name} vs {selectedMatch.awayTeam.name}
+              Update Match Score: {selectedMatch.homeTeam?.name} vs {selectedMatch.awayTeam?.name}
             </h3>
             <form onSubmit={handleUpdateScore} className="space-y-6">
               {/* Score Section */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {selectedMatch.homeTeam.name} Score
+                    {selectedMatch.homeTeam?.name} Score
                   </label>
                   <input
                     type="number"
@@ -504,7 +504,7 @@ const AdminMatchesPage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {selectedMatch.awayTeam.name} Score
+                    {selectedMatch.awayTeam?.name} Score
                   </label>
                   <input
                     type="number"

@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(userData);
 
       if (resp.data.status === "success") {
-        toast.success(`Welcome back, ${userData?.first_name || "User"}!`);
+        toast.success(`Welcome back, ${userData?.username || "User"}!`);
         navigate("/dashboard");
       }
     } catch (err: any) {
