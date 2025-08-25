@@ -483,7 +483,7 @@ const UserDashboard: React.FC = () => {
                 className="card p-6"
               >
                 <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">League Top Scorers</h3>
-                {dashboardData.league_top_scorers.length > 0 ? (
+                {dashboardData?.league_top_scorers && dashboardData.league_top_scorers.length > 0 ?(
                   <div className="space-y-3">
                     {dashboardData.league_top_scorers.slice(0, 5).map((scorer, index) => (
                       <div key={index} className="flex items-center justify-between">
@@ -545,7 +545,7 @@ const UserDashboard: React.FC = () => {
         </div>
       </div>
     </Layout>
-    
+
 		// <Layout>
 		// 	<div className='min-h-screen p-6'>
 		// 		<div className='max-w-7xl mx-auto'>

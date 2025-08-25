@@ -51,8 +51,12 @@ const AdminPlayersPage: React.FC = () => {
 
   const fetchPlayers = async () => {
     try {
-      const response = await adminAPI.getUsersByTeam()
-      setPlayers(response.data.data)
+      const response = await adminAPI.getUsers()
+      const normalized = response.data.data.map((p: Player) => ({
+      ...p,
+      statistics: p.statistics || { goals: 0, assists: 0, yellow_cards: 0, red_cards: 0 },
+    }))
+    setPlayers(normalized)
     } catch (error) {
       toast.error("Failed to load players")
     } finally {
