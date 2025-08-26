@@ -75,14 +75,20 @@ export const matchesAPI = {
   getLiveMatches: () => api.get("/matches/live"),
 }
 
-// Statistics API
+// Statistics API - FIXED TO WORK WITH YOUR LARAVEL CONTROLLER
 export const statisticsAPI = {
   getStatistics: () => api.get("/statistics"),
-  getPlayerStatistics: () => api.get("/admin/statistics/players"),
-  updatePlayerStatistic: (playerId: number, data: any) => api.put(`/admin/statistics/players/${playerId}`, data),
+  // Get aggregated player statistics (read-only)
+  getPlayerStatistics: () => api.get("/admin/statistics"),
+  // Create new match-specific statistics (requires user_id and match_id)
   createStatistic: (data: any) => api.post("/admin/statistics", data),
+  // Update existing match-specific statistics by ID
   updateStatistic: (id: number, data: any) => api.put(`/admin/statistics/${id}`, data),
+  // Delete specific statistics record
   deleteStatistic: (id: number) => api.delete(`/admin/statistics/${id}`),
+  // Get individual player details with match breakdown
+  getPlayerDetail: (playerId: number, withMatches = false) =>
+    api.get(`/admin/statistics/player/${playerId}${withMatches ? "?with_matches=true" : ""}`),
 }
 
 // Users API
@@ -96,47 +102,50 @@ export const usersAPI = {
 }
 
 // Admin API
-  export const adminAPI = {
-    //User Management
-    getUsers: () => api.get("/admin/users"),
-    getUsersByTeam: () => api.get("/admin/users/by-team"),
-    verifyUser: (id: number) => api.put(`/admin/users/${id}/verify`),
-    unverifyUser: (id: number) => api.put(`/admin/users/${id}/unverify`),
-    updateUserTeam: (id: number, teamId: number) => api.put(`/admin/users/${id}/team`, { team_id: teamId }),
-    removeUserFromTeam: (id: number) => api.delete(`/admin/users/${id}/team`),
-    deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
+export const adminAPI = {
+  //User Management
+  getUsers: () => api.get("/admin/users"),
+  getUsersByTeam: () => api.get("/admin/users/by-team"),
+  verifyUser: (id: number) => api.put(`/admin/users/${id}/verify`),
+  unverifyUser: (id: number) => api.put(`/admin/users/${id}/unverify`),
+  updateUserTeam: (id: number, teamId: number | null) => api.put(`/admin/users/${id}/team`, { team_id: teamId }),
+  removeUserFromTeam: (id: number) => api.delete(`/admin/users/${id}/team`),
+  deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
 
-    //Payment Management
-    getPayments: () => api.get("/admin/payments"),
-    verifyPayment: (id: number) => api.put(`/admin/payments/${id}/verify`),
-    rejectPayment: (id: number, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),
+  //Payment Management
+  getPayments: () => api.get("/admin/payments"),
+  verifyPayment: (id: number) => api.put(`/admin/payments/${id}/verify`),
+  rejectPayment: (id: number, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),
 
-    //Dashboard Stats
-    getDashboardStats: () => api.get("/admin/dashboard/stats"),
+  //Dashboard Stats
+  getDashboardStats: () => api.get("/admin/dashboard/stats"),
 
-    // Player Dashboard Control - Admin can update any player's dashboard
-    updatePlayerDashboard: (playerId: number, data: any) => api.put(`/admin/players/${playerId}/dashboard`, data),
-    getPlayerDashboard: (playerId: number) => api.get(`/admin/players/${playerId}/dashboard`),
+  // Player Dashboard Control - Admin can update any player's dashboard
+  updatePlayerDashboard: (playerId: number, data: any) => api.put(`/admin/players/${playerId}/dashboard`, data),
+  getPlayerDashboard: (playerId: number) => api.get(`/admin/players/${playerId}/dashboard`),
 
-    // Teams Management
-    getTeams: () => teamsAPI.getTeams(),
-    getTeamPlayers: (id: number) => teamsAPI.getTeamPlayers(id),
-    createTeam: (data: any) => teamsAPI.createTeam(data),
-    updateTeam: (id: number, data: any) => teamsAPI.updateTeam(id, data),
-    deleteTeam: (id: number) => teamsAPI.deleteTeam(id),
+  // Teams Management
+  getTeams: () => teamsAPI.getTeams(),
+  getTeamPlayers: (id: number) => teamsAPI.getTeamPlayers(id),
+  createTeam: (data: any) => teamsAPI.createTeam(data),
+  updateTeam: (id: number, data: any) => teamsAPI.updateTeam(id, data),
+  deleteTeam: (id: number) => teamsAPI.deleteTeam(id),
 
-    // Notification Management
-    sendNotificationToUser: (userId: number, data: any) => api.post(`/admin/notifications/user/${userId}`, data),
-    sendNotificationToTeam: (teamId: number, data: any) => api.post(`/admin/notifications/team/${teamId}`, data),
-    sendBroadcastNotification: (data: any) => api.post("/admin/notifications/broadcast", data),
-    getSystemNotifications: () => api.get("/admin/notifications/system"),
+  //Statistics Management
+  getPlayerStatistics: () => api.get("/admin/statistics"),
 
-    // Advanced Controls
-    updateUserStatistics: (userId: number, data: any) => api.put(`/admin/users/${userId}/statistics`, data),
-    resetUserPassword: (userId: number) => api.post(`/admin/users/${userId}/reset-password`),
-    suspendUser: (userId: number, reason: string) => api.post(`/admin/users/${userId}/suspend`, { reason }),
-    unsuspendUser: (userId: number) => api.post(`/admin/users/${userId}/unsuspend`),
-  }
+  // Notification Management
+  sendNotificationToUser: (userId: number, data: any) => api.post(`/admin/notifications/user/${userId}`, data),
+  sendNotificationToTeam: (teamId: number, data: any) => api.post(`/admin/notifications/team/${teamId}`, data),
+  sendBroadcastNotification: (data: any) => api.post("/admin/notifications/broadcast", data),
+  getSystemNotifications: () => api.get("/admin/notifications/system"),
+
+  // Advanced Controls
+  updateUserStatistics: (userId: number, data: any) => api.put(`/admin/users/${userId}/statistics`, data),
+  resetUserPassword: (userId: number) => api.post(`/admin/users/${userId}/reset-password`),
+  suspendUser: (userId: number, reason: string) => api.post(`/admin/users/${userId}/suspend`, { reason }),
+  unsuspendUser: (userId: number) => api.post(`/admin/users/${userId}/unsuspend`),
+}
 
 // Notifications API
 export const notificationsAPI = {
