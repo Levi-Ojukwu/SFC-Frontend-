@@ -16,15 +16,21 @@ import {
 	XCircle,
 	TrendingUp,
 	UserCheck,
-	Bell,
 	Plus,
 	Eye,
 	AlertTriangle,
 	Target,
 	Shield,
+	Trash2,
 } from "lucide-react";
-import { dashboardAPI, adminAPI, notificationsAPI } from "../../lib/api";
+import {
+	dashboardAPI,
+	adminAPI,
+	notificationsAPI,
+	teamsAPI,
+} from "../../lib/api";
 import toast from "react-hot-toast";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 // Define a more specific Match interface for AdminDashboard
 // interface Match {
@@ -36,6 +42,36 @@ import toast from "react-hot-toast";
 // 	match_date: string;
 // 	is_played: boolean;
 // }
+
+interface Team {
+	id: number;
+	name: string;
+	logo?: string;
+	founded_year?: number;
+	players_count: number;
+	wins: number;
+	losses: number;
+	draws: number;
+	goals_for: number;
+	goals_against: number;
+	points: number;
+	created_at: string;
+	players?: Player[];
+}
+
+interface Player {
+	id: number;
+	first_name: string;
+	last_name: string;
+	username: string;
+	position: string;
+	jersey_number?: number;
+	goals: number;
+	assists: number;
+	yellow_cards: number;
+	red_cards: number;
+	is_verified: boolean;
+}
 
 interface AdminDashboardData {
 	counts: {
@@ -57,6 +93,7 @@ interface AdminDashboardData {
 	notifications: any[];
 	unread_notifications_count: number;
 	top_scorers: any[];
+	teams: Team[];
 }
 
 const AdminDashboard: React.FC = () => {
@@ -81,16 +118,32 @@ const AdminDashboard: React.FC = () => {
 		notifications: [],
 		unread_notifications_count: 0,
 		top_scorers: [],
+		teams: [],
 	});
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState<
-		"overview" | "users" | "payments" | "matches"
+		"overview" | "users" | "payments" | "teams"
 	>("overview");
+	const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+	const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
+	const [showTeamPlayersModal, setShowTeamPlayersModal] = useState(false);
+	const [newTeam, setNewTeam] = useState({
+		name: "",
+		founded_year: new Date().getFullYear(),
+	});
+	const [confirmOpen, setConfirmOpen] = useState(false);
+	const [confirmMessage, setConfirmMessage] = useState("");
+	const [confirmAction, setConfirmAction] = useState<
+		(() => Promise<void>) | null
+	>(null);
 
 	useEffect(() => {
 		fetchDashboardData();
 		fetchNotifications();
-	}, []);
+		if (activeTab === "teams") {
+			fetchTeams();
+		}
+	}, [activeTab]);
 
 	const fetchDashboardData = async () => {
 		try {
@@ -116,6 +169,67 @@ const AdminDashboard: React.FC = () => {
 		} catch (error) {
 			console.error("Failed to load notifications:", error);
 		}
+	};
+
+	const fetchTeams = async () => {
+		try {
+			const response = await adminAPI.getTeams();
+			setDashboardData((prev) => ({
+				...prev,
+				teams: response.data.data,
+			}));
+		} catch (error: any) {
+			console.error("Failed to load teams:", error);
+			toast.error("Failed to load teams");
+		}
+	};
+
+	const fetchTeamPlayers = async (teamId: number) => {
+		try {
+			const response = await adminAPI.getTeamPlayers(teamId);
+			const team = dashboardData.teams.find((t) => t.id === teamId);
+			if (team) {
+				setSelectedTeam({
+					...team,
+					players: response.data.data,
+				});
+				setShowTeamPlayersModal(true);
+			}
+		} catch (error: any) {
+			console.error("Failed to load team players:", error);
+			toast.error("Failed to load team players");
+		}
+	};
+
+	const handleCreateTeam = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			await adminAPI.createTeam(newTeam);
+			toast.success("Team created successfully");
+			setShowCreateTeamModal(false);
+			setNewTeam({ name: "", founded_year: new Date().getFullYear() });
+			fetchTeams();
+			fetchDashboardData(); // Refresh counts
+		} catch (error: any) {
+			toast.error(error.response?.data?.message || "Failed to create team");
+		}
+	};
+
+	const handleDeleteTeam = async (teamId: number, teamName: string) => {
+		setConfirmMessage(
+			`Are you sure you want to delete "${teamName}"? This action cannot be undone.`,
+		);
+		setConfirmAction(() => async () => {
+			try {
+				await adminAPI.deleteTeam(teamId);
+				toast.success("Team deleted successfully");
+				fetchTeams();
+				fetchDashboardData(); // Refresh counts
+			} catch (error: any) {
+				toast.error(error.response?.data?.message || "Failed to delete team");
+			}
+		});
+		setConfirmOpen(true);
 	};
 
 	const handleVerifyUser = async (userId: number) => {
@@ -217,18 +331,6 @@ const AdminDashboard: React.FC = () => {
 									Manage Special FC operations, members, and activities
 								</p>
 							</div>
-
-							{/* Notifications */}
-							{/* <div className="relative">
-                <button className="p-3 bg-white dark:bg-dark-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 relative">
-                  <Bell className="w-6 h-6 text-gray-600 dark:text-gray-300" />
-                  {dashboardData.unread_notifications_count > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                      {dashboardData.unread_notifications_count}
-                    </span>
-                  )}
-                </button>
-              </div> */}
 						</div>
 					</motion.div>
 
@@ -372,7 +474,7 @@ const AdminDashboard: React.FC = () => {
 								{ key: "overview", label: "Overview" },
 								{ key: "users", label: "User Management" },
 								{ key: "payments", label: "Payment Verification" },
-								{ key: "matches", label: "Match Management" },
+								{ key: "teams", label: "Team Management" },
 							].map((tab) => (
 								<button
 									key={tab.key}
@@ -598,7 +700,7 @@ const AdminDashboard: React.FC = () => {
 													<div className='flex items-center space-x-2'>
 														{payment.payment_proof && (
 															<button className='p-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'>
-																<Eye size={16} />
+																<Eye size={24} />
 															</button>
 														)}
 														<button
@@ -623,38 +725,197 @@ const AdminDashboard: React.FC = () => {
 								</motion.div>
 							)}
 
-							{activeTab === "matches" && (
+							{activeTab === "teams" && (
 								<motion.div
 									initial={{ opacity: 0, y: 20 }}
 									animate={{ opacity: 1, y: 0 }}
 									transition={{ duration: 0.6, delay: 1.0 }}
 									className='card p-6'>
-									<h2 className='text-xl font-bold text-gray-900 dark:text-gray-100 mb-4'>
-										Match Management
-									</h2>
-									{dashboardData.recent_matches.length > 0 ? (
-										<div className='space-y-4'>
-											{dashboardData.recent_matches.map((match, index) => (
+									<div className='flex items-center justify-between mb-6'>
+										<h2 className='text-xl font-bold text-gray-900 dark:text-gray-100'>
+											Team Management
+										</h2>
+										<button
+											onClick={() => setShowCreateTeamModal(true)}
+											className='btn-primary px-4 py-2 flex items-center space-x-2'>
+											<Plus size={16} />
+											<span>Create Team</span>
+										</button>
+									</div>
+
+									{dashboardData.teams.length > 0 ? (
+										<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+											{dashboardData.teams.map((team) => (
 												<div
-													key={index}
-													className='flex items-center justify-between p-4 bg-gray-50 dark:bg-dark-700 rounded-lg'>
-													<p className='font-medium text-gray-900 dark:text-gray-100'>
-														{match.homeTeam?.name} vs {match.awayTeam?.name}
-													</p>
-													<p className='text-sm text-gray-600 dark:text-gray-400'>
-														{new Date(match.match_date).toLocaleDateString()}
-													</p>
+													key={team.id}
+													className='bg-gray-50 dark:bg-dark-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600'>
+													<div className='flex items-start justify-between mb-3'>
+														<div className='flex items-center space-x-3'>
+															<div className='w-12 h-12 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center'>
+																<Trophy className='w-6 h-6 text-white' />
+															</div>
+															<div>
+																<h3 className='font-bold text-gray-900 dark:text-gray-100'>
+																	{team.name}
+																</h3>
+																<p className='text-sm text-gray-600 dark:text-gray-400'>
+																	Founded: {team.founded_year || "N/A"}
+																</p>
+															</div>
+														</div>
+														<div className='flex items-center space-x-2'>
+															<button
+																onClick={() => fetchTeamPlayers(team.id)}
+																className='p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/20 rounded-lg transition-colors'
+																title='View Players'>
+																<Users size={16} />
+															</button>
+															<button
+																onClick={() =>
+																	handleDeleteTeam(team.id, team.name)
+																}
+																className='p-2 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors'
+																title='Delete Team'>
+																<Trash2 size={16} />
+															</button>
+														</div>
+													</div>
+
+													<div className='grid grid-cols-2 gap-4 text-sm'>
+														<div className='text-center'>
+															<p className='font-semibold text-gray-900 dark:text-gray-100'>
+																{team.players_count}
+															</p>
+															<p className='text-gray-600 dark:text-gray-400'>
+																Players
+															</p>
+														</div>
+														<div className='text-center'>
+															<p className='font-semibold text-gray-900 dark:text-gray-100'>
+																{team.points}
+															</p>
+															<p className='text-gray-600 dark:text-gray-400'>
+																Points
+															</p>
+														</div>
+													</div>
+
+													<div className='mt-3 pt-3 border-t border-gray-200 dark:border-gray-600'>
+														<div className='flex justify-between text-xs text-gray-600 dark:text-gray-400'>
+															<span>W: {team.wins}</span>
+															<span>D: {team.draws}</span>
+															<span>L: {team.losses}</span>
+															<span>GF: {team.goals_for}</span>
+															<span>GA: {team.goals_against}</span>
+														</div>
+													</div>
+
+													<button
+														onClick={() => fetchTeamPlayers(team.id)}
+														className='w-full mt-3 bg-primary-500 hover:bg-primary-600 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2'>
+														<Eye size={14} />
+														<span>View Players ({team.players_count})</span>
+													</button>
 												</div>
 											))}
 										</div>
 									) : (
-										<p className='text-gray-600 dark:text-gray-400 text-center py-8'>
-											No matches available
-										</p>
+										<div className='text-center py-12'>
+											<Trophy className='w-16 h-16 text-gray-400 mx-auto mb-4' />
+											<p className='text-gray-600 dark:text-gray-400 mb-4'>
+												No teams created yet
+											</p>
+											<button
+												onClick={() => setShowCreateTeamModal(true)}
+												className='btn-primary px-6 py-2'>
+												Create Your First Team
+											</button>
+										</div>
+									)}
+
+									{/* 🔥 Create Team Modal */}
+									{showCreateTeamModal && (
+										<motion.div
+											initial={{ opacity: 0, scale: 0.9 }}
+											animate={{ opacity: 1, scale: 1 }}
+											exit={{ opacity: 0, scale: 0.9 }}
+											className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
+											<div className='bg-white dark:bg-gray-800 rounded-lg shadow-lg w-full max-w-md p-6'>
+												<h2 className='text-xl font-bold mb-4 text-gray-900 dark:text-gray-100'>
+													Create Team
+												</h2>
+												<form
+													onSubmit={handleCreateTeam}
+													className='space-y-4'>
+													<div>
+														<label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+															Team Name
+														</label>
+														<input
+															type='text'
+															value={newTeam.name}
+															onChange={(e) =>
+																setNewTeam({ ...newTeam, name: e.target.value })
+															}
+															className='mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 
+                  dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 
+                  focus:ring-primary-500 sm:text-sm'
+															required
+														/>
+													</div>
+													<div>
+														<label className='block text-sm font-medium text-gray-700 dark:text-gray-300'>
+															Founded Year
+														</label>
+														<input
+															type='number'
+															value={newTeam.founded_year}
+															onChange={(e) =>
+																setNewTeam({
+																	...newTeam,
+																	founded_year: Number(e.target.value),
+																})
+															}
+															className='mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 
+                  dark:bg-gray-700 dark:text-white shadow-sm focus:border-primary-500 
+                  focus:ring-primary-500 sm:text-sm'
+														/>
+													</div>
+													<div className='flex justify-end gap-3 pt-4'>
+														<button
+															type='button'
+															onClick={() => setShowCreateTeamModal(false)}
+															className='px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-600 
+                  hover:bg-gray-300 dark:hover:bg-gray-500'>
+															Cancel
+														</button>
+														<button
+															type='submit'
+															className='px-4 py-2 rounded-md bg-primary-600 text-white 
+                  hover:bg-primary-700'>
+															Create
+														</button>
+													</div>
+												</form>
+											</div>
+										</motion.div>
 									)}
 								</motion.div>
 							)}
 						</div>
+
+						<ConfirmDialog
+							open={confirmOpen}
+							title='Confirm Action'
+							description={confirmMessage}
+							confirmLabel='Yes'
+							cancelLabel='No'
+							onConfirm={async () => {
+								if (confirmAction) await confirmAction();
+								setConfirmOpen(false);
+							}}
+							onCancel={() => setConfirmOpen(false)}
+						/>
 
 						{/* Sidebar */}
 						<div className='space-y-6'>
@@ -732,7 +993,7 @@ const AdminDashboard: React.FC = () => {
 														</div>
 														<div>
 															<p className='font-medium text-gray-900 dark:text-gray-100 text-sm'>
-																{scorer.name}
+																{scorer.username}
 															</p>
 															<p className='text-xs text-gray-600 dark:text-gray-400'>
 																{scorer.team}
