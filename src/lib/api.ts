@@ -69,6 +69,7 @@ export const matchesAPI = {
   getResults: () => api.get("/matches/results"),
   getMatch: (id: number) => api.get(`/matches/${id}`),
   createMatch: (data: any) => api.post("/admin/matches", data),
+  startMatch: (id: number) => api.patch(`/admin/matches/${id}/start`),
   updateMatch: (id: number, data: any) => api.put(`/admin/matches/${id}`, data),
   updateMatchScore: (id: number, data: any) => api.put(`/admin/matches/${id}/score`, data),
   deleteMatch: (id: number) => api.delete(`/admin/matches/${id}`),

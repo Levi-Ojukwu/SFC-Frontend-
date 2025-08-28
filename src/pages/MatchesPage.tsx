@@ -10,8 +10,8 @@ import toast from "react-hot-toast"
 
 interface Match {
   id: number
-  homeTeam?: { id: number; name: string }
-  awayTeam?: { id: number; name: string }
+  home_team?: { id: number; name: string }
+  away_team?: { id: number; name: string }
   home_team_score: number
   away_team_score: number
   match_date: string
@@ -132,7 +132,7 @@ const MatchesPage: React.FC = () => {
                         <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-2">
                           <Trophy className="w-8 h-8 text-white" />
                         </div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.homeTeam?.name ?? "Unknown Team"}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.home_team?.name ?? "Unknown Team"}</p>
                       </div>
 
                       {/* Score/VS */}
@@ -156,7 +156,7 @@ const MatchesPage: React.FC = () => {
                         <div className="w-16 h-16 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-full flex items-center justify-center mx-auto mb-2">
                           <Trophy className="w-8 h-8 text-white" />
                         </div>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.awayTeam?.name ?? "Unknown Team"}</p>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">{match.away_team?.name ?? "Unknown Team"}</p>
                       </div>
                     </div>
 
